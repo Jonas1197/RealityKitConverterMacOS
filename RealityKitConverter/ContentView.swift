@@ -14,17 +14,18 @@ struct ContentView: View {
     
     @StateObject var inputButtonModel         = CustomButtonStateModel(model: .init(title: "Select input images directroy"))
     @StateObject var outputButtonModel        = CustomButtonStateModel(model: .init(title: "Select output directory"))
-    @StateObject var processImagesButtonModel = CustomButtonStateModel(model: .init(title: "Process Images"))
+    @StateObject var processImagesButtonModel = CustomButtonStateModel(model: .init(title: "Full Images Process"))
+    @StateObject var processToUSDZButtonModel = CustomButtonStateModel(model: .init(title: "Process to .USDZ"))
     @StateObject var previewItemButtonModel   = CustomButtonStateModel(model: .init(title: "Preview Item"))
     
-    @State var selectedDirectroy:       URL?
-    @State var selectedOutputDirectroy: URL?
-    @State var modelItemUrl:            URL?
-    @State var presentsARQuickLook:     Bool   = false
-    @State var isLoading:               Bool   = false
-    @State var alertPresented:          Bool   = false
-    @State var progressValue:           Double = 0.0
-    @State var processingLogs:          String = "No logs yet..."
+    @State var inputDirectory:      URL?
+    @State var outputDirectory:     URL?
+    @State var modelItemUrl:        URL?
+    @State var presentsARQuickLook: Bool   = false
+    @State var isLoading:           Bool   = false
+    @State var alertPresented:      Bool   = false
+    @State var progressValue:       Double = 0.0
+    @State var processingLogs:      String = "No logs yet..."
     
     let pickerValues                   = ["Preview", "Reduced", "Medium", "Full", "Raw"]
     @State var pickerSelection: String = "Preview"
@@ -47,14 +48,14 @@ struct ContentView: View {
                     CustomButton(stateModel: inputButtonModel) {
                         selectFolder { url in
                             guard let url else { return }
-                            selectedDirectroy = url
+                            inputDirectory = url
                         }
                     }
                     
                     
                     
                     //MARK: Selected Directroy Label
-                    Text("Loading images from: \(selectedDirectroy?.absoluteString ?? "Not yet selected")")
+                    Text("Loading images from: \(inputDirectory?.absoluteString ?? "Not yet selected")")
                         .padding(.bottom)
                     
                     
@@ -63,17 +64,17 @@ struct ContentView: View {
                     CustomButton(stateModel: outputButtonModel) {
                         selectFolder { url in
                             guard let url else { return }
-                            selectedOutputDirectroy = url
+                            outputDirectory = url
                         }
                     }
                 
                     //MARK: Selected output Directroy Label
-                    Text("Output: \(selectedOutputDirectroy?.absoluteString ?? "Not yet selected")")
+                    Text("Output: \(outputDirectory?.absoluteString ?? "Not yet selected")")
                         .padding(.bottom)
                     
                     HStack {
                         //MARK: Start Object Process Button
-                        CustomButton(stateModel: processImagesButtonModel, isDisabled: (selectedDirectroy == nil || selectedOutputDirectroy == nil || isLoading)) {
+                        CustomButton(stateModel: processImagesButtonModel, isDisabled: (inputDirectory == nil || outputDirectory == nil || isLoading)) {
                             let converter = RealityKitConverter()
                             processingLogs = ""
                             modelItemUrl   = nil
@@ -83,7 +84,7 @@ struct ContentView: View {
                             }
                             
                             converter.configureSession(
-                                inputUrl: selectedDirectroy) { modelUrl in
+                                inputUrl: inputDirectory) { modelUrl in
                                     guard let modelUrl else {
                                         self.isLoading      = false
                                         self.alertPresented = true
@@ -101,7 +102,44 @@ struct ContentView: View {
                                 }
 
                             converter.startModellingProcess(
-                                outputUrl: selectedOutputDirectroy,
+                                outputUrl: outputDirectory,
+                                detail:    renderDetail())
+                        }
+                        .padding(.bottom)
+                        
+                        CustomButton(stateModel: processToUSDZButtonModel, isDisabled: (inputDirectory == nil || outputDirectory == nil || isLoading)) {
+                            let converter = RealityKitConverter()
+                            processingLogs = ""
+                            modelItemUrl   = nil
+                            
+                            withAnimation(.easeInOut(duration: 0.4)) {
+                                isLoading = true
+                            }
+                            
+                            converter.configureSession(
+                                inputUrl: inputDirectory) { modelUrl in
+                                    guard let modelUrl else {
+                                        self.isLoading      = false
+                                        self.alertPresented = true
+                                        return
+                                    }
+                                    
+                                    self.modelItemUrl = modelUrl
+                                    isLoading = false
+                                    
+                                } progressHadler: { progressValue in
+                                    self.progressValue = progressValue
+                                    
+                                } logsHandler: { logs in
+                                    processingLogs += logs
+                                }
+                            
+                            guard let outputDirectory else { return }
+                            var urlString = outputDirectory.absoluteString
+                            urlString += "Model.usdz"
+                            
+                            converter.startModellingProcess(
+                                outputUrl: .init(string: urlString),
                                 detail:    renderDetail())
                         }
                         .padding(.bottom)
