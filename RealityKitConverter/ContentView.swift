@@ -76,6 +76,8 @@ struct ContentView: View {
                         CustomButton(stateModel: processImagesButtonModel, isDisabled: (selectedDirectroy == nil || selectedOutputDirectroy == nil || isLoading)) {
                             let converter = RealityKitConverter()
                             processingLogs = ""
+                            modelItemUrl   = nil
+                            
                             withAnimation(.easeInOut(duration: 0.4)) {
                                 isLoading = true
                             }

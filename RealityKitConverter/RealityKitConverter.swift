@@ -9,15 +9,19 @@ import Foundation
 import RealityKit
 
 final class RealityKitConverter {
+    typealias RealityKitConverterCompletion   = (URL?)   -> Void
+    typealias RealityConverterProgressHandler = (Double) -> Void
+    typealias RealityConverterLogsHandler     = (String) -> Void
+    
     private var inputFolderUrl: URL?            = nil
     private var outputItemUrl:  URL?            = nil
     private var session: PhotogrammetrySession? = nil
     
     @discardableResult
     func configureSession(inputUrl: URL?,
-                          completion: @escaping (URL?) -> Void,
-                          progressHadler: ((Double) -> Void)? = nil,
-                          logsHandler:    ((String) -> Void)? = nil) -> Bool {
+                          completion: @escaping RealityKitConverterCompletion,
+                          progressHadler: RealityConverterProgressHandler? = nil,
+                          logsHandler:    RealityConverterLogsHandler?     = nil) -> Bool {
         
         guard let inputUrl else {
             print("\n~~> Failed to configure Session | Invalid directory Url provided.")
@@ -46,7 +50,6 @@ final class RealityKitConverter {
     }
     
     func startModellingProcess(outputUrl: URL?, detail: PhotogrammetrySession.Request.Detail) {
-        
         guard let outputUrl else { return }
         do {
             try self.session?.process(requests: [
@@ -60,8 +63,8 @@ final class RealityKitConverter {
     
     
     private func handleSessionOutputs(_ completion: @escaping (URL?) -> Void,
-                                      progressHandler: ((Double) -> Void)? = nil,
-                                      logsHanlder:     ((String) -> Void)? = nil) -> Void {
+                                      progressHandler: RealityConverterProgressHandler? = nil,
+                                      logsHanlder:     RealityConverterLogsHandler?     = nil) -> Void {
         guard let session else { return }
         
         Task {
