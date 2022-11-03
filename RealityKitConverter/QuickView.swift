@@ -10,6 +10,7 @@ import QuickLook
 import QuickLookUI
 
 struct QuickView: NSViewRepresentable {
+    
     var item: URL?
     
     func makeNSView(context: Context) -> some NSView {
