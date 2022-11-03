@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		75CC4BB02913D06F0053F966 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC4BAF2913D06F0053F966 /* CustomButton.swift */; };
+		75CC4BB22913E1010053F966 /* ScrollableTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75CC4BB12913E1010053F966 /* ScrollableTextView.swift */; };
 		75E5D7B7291278390077DA36 /* RealityKitConverterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E5D7B6291278390077DA36 /* RealityKitConverterApp.swift */; };
 		75E5D7B9291278390077DA36 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E5D7B8291278390077DA36 /* ContentView.swift */; };
 		75E5D7BB291278390077DA36 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 75E5D7BA291278390077DA36 /* Assets.xcassets */; };
@@ -16,6 +18,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		75CC4BAF2913D06F0053F966 /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
+		75CC4BB12913E1010053F966 /* ScrollableTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollableTextView.swift; sourceTree = "<group>"; };
 		75E5D7B3291278390077DA36 /* RealityKitConverter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealityKitConverter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		75E5D7B6291278390077DA36 /* RealityKitConverterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityKitConverterApp.swift; sourceTree = "<group>"; };
 		75E5D7B8291278390077DA36 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -38,6 +42,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		75CC4BAE2913D0660053F966 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				75CC4BAF2913D06F0053F966 /* CustomButton.swift */,
+				75CC4BB12913E1010053F966 /* ScrollableTextView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		75E5D7AA291278390077DA36 = {
 			isa = PBXGroup;
 			children = (
@@ -57,6 +70,7 @@
 		75E5D7B5291278390077DA36 /* RealityKitConverter */ = {
 			isa = PBXGroup;
 			children = (
+				75CC4BAE2913D0660053F966 /* Views */,
 				75E5D7C7291280AE0077DA36 /* Info.plist */,
 				75E5D7B6291278390077DA36 /* RealityKitConverterApp.swift */,
 				75E5D7B8291278390077DA36 /* ContentView.swift */,
@@ -147,10 +161,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75CC4BB22913E1010053F966 /* ScrollableTextView.swift in Sources */,
 				75E5D7B9291278390077DA36 /* ContentView.swift in Sources */,
 				75E5D7C629127B230077DA36 /* RealityKitConverter.swift in Sources */,
 				75E5D7CB2912A2070077DA36 /* QuickView.swift in Sources */,
 				75E5D7B7291278390077DA36 /* RealityKitConverterApp.swift in Sources */,
+				75CC4BB02913D06F0053F966 /* CustomButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

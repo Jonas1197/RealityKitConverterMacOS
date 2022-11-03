@@ -16,7 +16,9 @@ final class RealityKitConverter {
     @discardableResult
     func configureSession(inputUrl: URL?,
                           completion: @escaping (URL?) -> Void,
-                          progressHadler: ((Double) -> Void)? = nil) -> Bool {
+                          progressHadler: ((Double) -> Void)? = nil,
+                          logsHandler:    ((String) -> Void)? = nil) -> Bool {
+        
         guard let inputUrl else {
             print("\n~~> Failed to configure Session | Invalid directory Url provided.")
             return false
@@ -30,6 +32,8 @@ final class RealityKitConverter {
                 completion(url)
             } progressHandler: { progress in
                 progressHadler?(progress)
+            } logsHanlder: { logs in
+                logsHandler?(logs)
             }
             
             
@@ -42,6 +46,7 @@ final class RealityKitConverter {
     }
     
     func startModellingProcess(outputUrl: URL?, detail: PhotogrammetrySession.Request.Detail) {
+        
         guard let outputUrl else { return }
         do {
             try self.session?.process(requests: [
@@ -55,15 +60,16 @@ final class RealityKitConverter {
     
     
     private func handleSessionOutputs(_ completion: @escaping (URL?) -> Void,
-                                      progressHandler: ((Double) -> Void)? = nil) -> Void {
+                                      progressHandler: ((Double) -> Void)? = nil,
+                                      logsHanlder:     ((String) -> Void)? = nil) -> Void {
         guard let session else { return }
         
         Task {
             for try await output in session.outputs {
                 switch output {
-                case .requestProgress(_, let fraction):
+                case .requestProgress(let request, let fraction):
                     progressHandler?(fraction)
-                    print("\n~~> Session output: Request progress: \(fraction)")
+                    logsHanlder?("\n~~> Process fraction [\(fraction)] | For request: [\(request)]")
                     
                 case .requestComplete(_, let result):
                     if case .modelFile(let url) = result {
@@ -73,11 +79,12 @@ final class RealityKitConverter {
                     }
                     
                 case .requestError(let request, let error):
-                    print("\n~~> Session output: Error for request [ \(request) ]\nerror = \(error)")
+                    logsHanlder?("\n~~> Error for request [ \(request) ]\nerror = \(error)")
                     completion(nil)
                     
                 case .processingComplete:
                     print("\n~~> Session output: Processing completed!")
+                    logsHanlder?("\n\n~~> Session output: Processing completed!")
                     // Can exit the program here...
                     self.session = nil
                     

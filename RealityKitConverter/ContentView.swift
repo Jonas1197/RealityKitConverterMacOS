@@ -12,6 +12,11 @@ import QuickLookUI
 
 struct ContentView: View {
     
+    @StateObject var inputButtonModel         = CustomButtonStateModel(model: .init(title: "Select input images directroy"))
+    @StateObject var outputButtonModel        = CustomButtonStateModel(model: .init(title: "Select output directory"))
+    @StateObject var processImagesButtonModel = CustomButtonStateModel(model: .init(title: "Process Images"))
+    @StateObject var previewItemButtonModel   = CustomButtonStateModel(model: .init(title: "Preview Item"))
+    
     @State var selectedDirectroy:       URL?
     @State var selectedOutputDirectroy: URL?
     @State var modelItemUrl:            URL?
@@ -19,6 +24,10 @@ struct ContentView: View {
     @State var isLoading:               Bool   = false
     @State var alertPresented:          Bool   = false
     @State var progressValue:           Double = 0.0
+    @State var processingLogs:          String = "No logs yet..."
+    
+    let pickerValues                   = ["Preview", "Reduced", "Medium", "Full", "Raw"]
+    @State var pickerSelection: String = "Preview"
     
     var body: some View {
         ZStack {
@@ -34,23 +43,13 @@ struct ContentView: View {
                         .padding(.bottom)
                     
                     
-                    
-                    //MARK: Image Url Selection
-                    Button {
-                        //TODO: User selects directroy with images
+                    //MARK: Input directory button
+                    CustomButton(stateModel: inputButtonModel) {
                         selectFolder { url in
                             guard let url else { return }
-                            
-                            print("\n~~> Selected URL: \(url)")
                             selectedDirectroy = url
                         }
-                        
-                    } label: {
-                        Text("Load images from directory")
-                            .foregroundColor(.white)
-                            .font(.system(size: 14, weight: .regular))
                     }
-                    .padding(.bottom)
                     
                     
                     
@@ -61,34 +60,23 @@ struct ContentView: View {
                     
                     
                     //MARK: Model Output Selection
-                    Button {
-                        //TODO: User selects directroy with images
+                    CustomButton(stateModel: outputButtonModel) {
                         selectFolder { url in
                             guard let url else { return }
-                            
-                            print("\n~~> Output URL selected: \(url)")
                             selectedOutputDirectroy = url
                         }
-                        
-                    } label: {
-                        Text("Select output directory")
-                            .foregroundColor(.white)
-                            .font(.system(size: 14, weight: .regular))
                     }
-                    .padding(.bottom)
                 
-                    
-                    
                     //MARK: Selected output Directroy Label
                     Text("Output: \(selectedOutputDirectroy?.absoluteString ?? "Not yet selected")")
                         .padding(.bottom)
                     
-                    
                     HStack {
                         //MARK: Start Object Process Button
-                        Button {
+                        CustomButton(stateModel: processImagesButtonModel, isDisabled: (selectedDirectroy == nil || selectedOutputDirectroy == nil || isLoading)) {
                             let converter = RealityKitConverter()
-                            withAnimation(.easeInOut(duration: 1)) {
+                            processingLogs = ""
+                            withAnimation(.easeInOut(duration: 0.4)) {
                                 isLoading = true
                             }
                             
@@ -105,47 +93,44 @@ struct ContentView: View {
                                     
                                 } progressHadler: { progressValue in
                                     self.progressValue = progressValue
+                                    
+                                } logsHandler: { logs in
+                                    processingLogs += logs
                                 }
 
-                            
                             converter.startModellingProcess(
                                 outputUrl: selectedOutputDirectroy,
-                                detail: .preview
-                            )
-                            
-                            
-                            
-                        } label: {
-                            Text("Process images")
-                                .foregroundColor(.white)
-                                .font(.system(size: 14, weight: .regular))
-                            
-                            
-                        }.disabled((selectedDirectroy == nil || selectedOutputDirectroy == nil || isLoading))
-                            .padding(.bottom)
+                                detail:    renderDetail())
+                        }
+                        .padding(.bottom)
+                        
                         
                         Spacer()
                         
-                        //MARK: Preview item button
                         
-                        Button {
+                        //MARK: Preview item button
+                        CustomButton(stateModel: previewItemButtonModel) {
                             selectFolder(previewSelection: true) { url in
                                 guard let url else { return }
                                 self.modelItemUrl = url
-                                
                             }
-                        } label: {
-                            Text("Preview item")
-                                .foregroundColor(.white)
-                                .font(.system(size: 14, weight: .regular))
                         }
                         .padding(.bottom)
                     }
                     
+                    //MARK: Render Detail Picker
+                    Picker("Render Detail", selection: $pickerSelection) {
+                        ForEach(pickerValues, id: \.self) {
+                            Text($0)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .disabled(isLoading)
+                    
                     Text("• Modelling complete! Press on 'Preview item\" and select the .obj file to preview it!")
                         .font(.caption2)
                         .foregroundColor(.green)
-                        .opacity(modelItemUrl != nil ? 1 : 0)
+                        .opacity(modelItemUrl != nil && (progressValue >= 100) ? 1 : 0)
                     
                     //MARK: Model Preview Canvas
                     ZStack {
@@ -169,14 +154,35 @@ struct ContentView: View {
                             .padding([.leading, .bottom], 10)
                         }
                     }
-                    
                 }
                 .padding(24)
                 Spacer()
             }
+            
+            HStack {
+                Spacer()
+                VStack {
+                    
+                    Text("Processing Logs")
+                        .font(.headline)
+                    ScrollableTextView(stateModel: .init(model: .init(text: processingLogs)))
+                        .frame(width: 350, height: 150)
+
+                    
+//                    Text(processingLogs)
+//                        .lineLimit(nil)
+//                        .font(.caption2)
+//                        .frame(width: 350, height: 150)
+//                        .padding(4)
+//                        .background(RoundedRectangle(cornerRadius: 0).foregroundColor(.gray.opacity(0.3)))
+                    
+                    Spacer()
+                }
+                .padding([.trailing, .top], 24)
+            }
                     
         }
-        .frame(width: 800, height: 600)
+        .frame(minWidth: 900, minHeight: 800)
         .alert("Error occured while processing images!", isPresented: $alertPresented) {
             Button("Close", role: .cancel) {}
         }
@@ -198,6 +204,19 @@ struct ContentView: View {
                 completion(nil)
             }
         }
+    }
+    
+    private func renderDetail() -> PhotogrammetrySession.Request.Detail {
+        switch self.pickerSelection {
+        case "Preview": return .preview
+        case "Reduced": return .reduced
+        case "Medium":  return .medium
+        case "Full":    return .full
+        case "Raw":     return .raw
+        default:        break
+        }
+        
+        return .preview
     }
 }
 
