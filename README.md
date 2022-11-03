@@ -18,5 +18,5 @@ After processing has concluded you may preview your exported files (or .usdz) fi
 
 ##### Note that this process is heavy on the system. So use the best Mac you've got or it'll take you ages. Apple suggests to use the Macs with their silicon neuro fancy processor so it wont take as long. 
 
-![alt text](https://github.com/Jonas1197/RealityKitConverterMacOS/blob/main/Images/screenshot.png?raw=true)
+![alt text](https://github.com/Jonas1197/RealityKitConverterMacOS/blob/main/Images/Screenshot.png?raw=true)
 
