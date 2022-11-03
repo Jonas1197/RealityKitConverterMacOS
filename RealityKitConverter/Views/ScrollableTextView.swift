@@ -20,9 +20,6 @@ final class ScrollableTextViewStateModel: ObservableObject {
 }
 
 struct ScrollableTextView: NSViewRepresentable {
-    
-    
-    
     typealias NSViewType = NSScrollView
     
     @ObservedObject var stateModel: ScrollableTextViewStateModel
@@ -52,7 +49,7 @@ struct ScrollableTextView: NSViewRepresentable {
         }
         
         textView.string = stateModel.model.text
-        scrollView.documentView?.scroll(.init(x: 0, y: scrollView.documentView?.bounds.size.height ?? 0))
+        scrollView.documentView?.scroll(.init(x: 0, y: (scrollView.documentView?.bounds.size.height ?? 0) + 20))
     }
     
    
